@@ -1,49 +1,97 @@
 import scala.annotation.tailrec
 
-class Sudoku(size: Int, hints_matrix: Array[Array[Int]]) {
+class Sudoku(size: Int = 0, hints_matrix: Array[Array[Int]]=Array(), sudoku_matrix: Array[Array[Int]]=Array()) {
 
-  // Regarde si la taille du sudoku est valide
-  if (size != 4 && size != 9 && size != 16) {
-    print("Error: The grid size is not valid! Should be 4, 9 or 16.")
+  var grid_size = 0
+  var sub_grid_size: Int = 0
 
-  }
+  var hints = hints_matrix
 
-  // Variables qui contiennent la taille du sudoku et la taille des sous-carres
-  val grid_size = size
-  val sub_grid_size: Int = Math.sqrt(size).toInt
+  var sudoku_grid =  Array.fill[Array[Int]](size)(Array.fill[Int](size)(0))
 
-  val hints = hints_matrix
-
-  // La grille du sudoku
-  var sudoku_grid = Array.fill[Array[Int]](size)(Array.fill[Int](size)(0))
-
-  // Variables utilisees pour le choix de la case aleatoire
   var indices_grid = Array.fill[Array[Int]](grid_size*grid_size-hints.length)(Array.fill[Int](2)(0))
-
-  var r=0
-  for (i <- 0 until grid_size){
-    for (j <- 0 until grid_size){
-      if (check_if_hint(i,j)){
-      }else{
-        indices_grid(r)=Array(i,j)
-        r+=1
-      }
-    }
-  }
-
-  val indices_grid_list = scala.util.Random.shuffle(indices_grid.toList)
-
+  var indices_grid_list = Array.fill[Array[Int]](grid_size*grid_size-hints.length)(Array.fill[Int](2)(0))
   var iter = 0
 
-  // On remplit la grille avec les indices
-  for (hint <- hints) {
-    sudoku_grid(hint(0))(hint(1)) = hint(2)
+  if (sudoku_matrix.length==0){
+    // Regarde si la taille du sudoku est valide
+    if (size != 4 && size != 9 && size != 16) {
+      print("Error: The grid size is not valid! Should be 4, 9 or 16.")
+
+    }
+
+    // Variables qui contiennent la taille du sudoku et la taille des sous-carres
+    grid_size = size
+    sub_grid_size = Math.sqrt(size).toInt
+
+    hints = hints_matrix
+
+    // La grille du sudoku
+    sudoku_grid = Array.fill[Array[Int]](size)(Array.fill[Int](size)(0))
+
+    // Variables utilisees pour le choix de la case aleatoire
+    indices_grid = Array.fill[Array[Int]](grid_size*grid_size-hints.length)(Array.fill[Int](2)(0))
+
+    var r=0
+    for (i <- 0 until grid_size){
+      for (j <- 0 until grid_size){
+        if (check_if_hint(i,j)){
+        }else{
+          indices_grid(r)=Array(i,j)
+          r+=1
+        }
+      }
+    }
+
+    val indices_grid_list = scala.util.Random.shuffle(indices_grid.toList)
+
+    var iter = 0
+
+    // On remplit la grille avec les indices
+    for (hint <- hints) {
+      sudoku_grid(hint(0))(hint(1)) = hint(2)
+    }
+
+  }else{
+
+    // La grille du sudoku
+    sudoku_grid = sudoku_matrix
+
+    // Variables qui contiennent la taille du sudoku et la taille des sous-carres
+    grid_size = sudoku_grid.length
+    sub_grid_size = Math.sqrt(grid_size).toInt
+
+    if (size != 4 && size != 9 && size != 16) {
+      print("Error: The grid size is not valid! Should be 4, 9 or 16.")
+
+    }
+
+    var number_of_hint = 0
+
+    for (i <- 0 until grid_size){
+      for (j <- 0 until grid_size){
+        if (sudoku_grid(i)(j)!=0){
+          number_of_hint+=1
+        }
+      }
+    }
+
+    var hints =  Array.fill[Array[Int]](number_of_hint)(Array.fill[Int](3)(0))
+    number_of_hint = 0
+
+    for (i <- 0 until grid_size){
+      for (j <- 0 until grid_size){
+        if (sudoku_grid(i)(j)!=0){
+          hints(number_of_hint)=Array(i,j, sudoku_grid(i)(j))
+          number_of_hint+=1
+        }
+      }
+    }
   }
 
   var x_first_indice=0
   var y_first_indice=0
 
-  
   def get_first_indices(): Unit= {
     for (i <- 0 until grid_size) {
       for (j <- 0 until grid_size) {
@@ -57,7 +105,7 @@ class Sudoku(size: Int, hints_matrix: Array[Array[Int]]) {
   }
 
   get_first_indices()
-  
+
 
   def show_grid(): Unit = {
     var i=0
@@ -270,6 +318,19 @@ sudoku_solver_wrong.solve_sudoku()
 sudoku_solver_wrong.check_sudoku()
 sudoku_solver_wrong.show_grid()
 
+// Sudoku 4*4 wrong defines by the other way
+var sudoku_solver_wrong2 = new Sudoku(sudoku_matrix= Array(
+  Array(1,2,3,0),
+  Array(0,0,0,4),
+  Array(0,0,0,0),
+  Array(0,0,0,0),
+))
+sudoku_solver_wrong2.show_grid()
+sudoku_solver_wrong2.check_sudoku()
+sudoku_solver_wrong2.solve_sudoku()
+sudoku_solver_wrong2.check_sudoku()
+sudoku_solver_wrong2.show_grid()
+
 /*
 // Sudoku 4*4 complet
 var sudoku_solver0 = new Sudoku(4, Array(
@@ -352,7 +413,7 @@ sudoku_solver2.check_sudoku()
 sudoku_solver2.solve_sudoku2(sudoku_solver2.indices_grid_list.head(0),sudoku_solver2.indices_grid_list.head(1))
 sudoku_solver2.check_sudoku()
 sudoku_solver2.show_grid()
-**/
+
 
 // Sudoku 9*9 difficle
 var sudoku_solver3 = new Sudoku(9, Array(
@@ -387,3 +448,4 @@ sudoku_solver3.solve_sudoku()
 //sudoku_solver3.solve_sudoku2(sudoku_solver3.indices_grid_list.head(0),sudoku_solver3.indices_grid_list.head(1))
 sudoku_solver3.check_sudoku()
 sudoku_solver3.show_grid()
+**/
