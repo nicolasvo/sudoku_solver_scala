@@ -17,7 +17,7 @@ class Sudoku(size: Int, hints_matrix: Array[Array[Int]]) {
   // La grille du sudoku
   var sudoku_grid = Array.fill[Array[Int]](size)(Array.fill[Int](size)(0))
 
-  // Variables utilisees pour le choix de case aleatoire
+  // Variables utilisees pour le choix de la case aleatoire
   var indices_grid = Array.fill[Array[Int]](grid_size*grid_size-hints.length)(Array.fill[Int](2)(0))
 
   var r=0
@@ -39,6 +39,25 @@ class Sudoku(size: Int, hints_matrix: Array[Array[Int]]) {
   for (hint <- hints) {
     sudoku_grid(hint(0))(hint(1)) = hint(2)
   }
+
+  var x_first_indice=0
+  var y_first_indice=0
+
+  
+  def get_first_indices(): Unit= {
+    for (i <- 0 until grid_size) {
+      for (j <- 0 until grid_size) {
+        if (sudoku_grid(i)(j) == 0) {
+          x_first_indice=i
+          y_first_indice=j
+          return
+        }
+      }
+    }
+  }
+
+  get_first_indices()
+  
 
   def show_grid(): Unit = {
     var i=0
@@ -191,13 +210,12 @@ class Sudoku(size: Int, hints_matrix: Array[Array[Int]]) {
   @tailrec
   final def backtrack(x: Int, y: Int): Array[Int] = {
     // min() possible
-    // 1ere ligne fait buguer?
     if (sudoku_grid(x)(y)>=grid_size ){sudoku_grid(x)(y)=0; val arr = get_previous_indices(x, y);  backtrack(arr(0), arr(1))}
     else {sudoku_grid(x)(y)+=1; Array(x,y)}
   }
 
   @tailrec
-  final def solve_sudoku(x: Int, y: Int): Unit = {
+  final def solve_sudoku(x: Int = x_first_indice, y: Int = y_first_indice): Unit = {
 
     // Si la case du sudoku est vide (=0) on la met a 1
     if (sudoku_grid(x)(y)==0){ sudoku_grid(x)(y)=1; solve_sudoku(x, y)}
@@ -207,6 +225,8 @@ class Sudoku(size: Int, hints_matrix: Array[Array[Int]]) {
     else if ( check_number(x, y)){val arr = get_next_indices(x,y); solve_sudoku(arr(0), arr(1))}
     // Si la case n'est pas a la valeur maximum (et la case ne satisfait pas les contraintes)
     else if (sudoku_grid(x)(y)<grid_size){sudoku_grid(x)(y)+=1; solve_sudoku(x, y)}
+    // Erreur rebouclage case initiale
+    else if (x==x_first_indice && y==y_first_indice){println("The Sudoku is wrong!!!")}
     // Il faut retourner en arriere
     else{sudoku_grid(x)(y)=0; val arr2 = get_previous_indices(x, y); val arr = backtrack(arr2(0),arr2(1)); solve_sudoku(arr(0), arr(1))}
   }
@@ -237,6 +257,20 @@ class Sudoku(size: Int, hints_matrix: Array[Array[Int]]) {
 
 }
 
+// Sudoku 4*4 wrong
+var sudoku_solver_wrong = new Sudoku(4, Array(
+  Array(0,0,1),
+  Array(0,1,2),
+  Array(0,2,3),
+  Array(1,3,4),
+))
+sudoku_solver_wrong.show_grid()
+sudoku_solver_wrong.check_sudoku()
+sudoku_solver_wrong.solve_sudoku()
+sudoku_solver_wrong.check_sudoku()
+sudoku_solver_wrong.show_grid()
+
+/*
 // Sudoku 4*4 complet
 var sudoku_solver0 = new Sudoku(4, Array(
   Array(0,0,1),
@@ -270,7 +304,7 @@ var sudoku_solver1 = new Sudoku(4, Array(
 ))
 sudoku_solver1.show_grid()
 sudoku_solver1.check_sudoku()
-sudoku_solver1.solve_sudoku(0,0)
+sudoku_solver1.solve_sudoku()
 sudoku_solver1.check_sudoku()
 sudoku_solver1.show_grid()
 
@@ -314,11 +348,11 @@ var sudoku_solver2 = new Sudoku(9, Array(
 ))
 sudoku_solver2.show_grid()
 sudoku_solver2.check_sudoku()
-//sudoku_solver2.solve_sudoku(0,0)
+//sudoku_solver2.solve_sudoku()
 sudoku_solver2.solve_sudoku2(sudoku_solver2.indices_grid_list.head(0),sudoku_solver2.indices_grid_list.head(1))
 sudoku_solver2.check_sudoku()
 sudoku_solver2.show_grid()
-
+**/
 
 // Sudoku 9*9 difficle
 var sudoku_solver3 = new Sudoku(9, Array(
@@ -349,7 +383,7 @@ var sudoku_solver3 = new Sudoku(9, Array(
 ))
 sudoku_solver3.show_grid()
 sudoku_solver3.check_sudoku()
-sudoku_solver3.solve_sudoku(0,0)
+sudoku_solver3.solve_sudoku()
 //sudoku_solver3.solve_sudoku2(sudoku_solver3.indices_grid_list.head(0),sudoku_solver3.indices_grid_list.head(1))
 sudoku_solver3.check_sudoku()
 sudoku_solver3.show_grid()
