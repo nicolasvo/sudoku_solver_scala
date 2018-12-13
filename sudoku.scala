@@ -13,6 +13,20 @@ class Sudoku(size: Int = 0, hints_matrix: Array[Array[Int]]=Array(), sudoku_matr
   var indices_grid_list = Array.fill[Array[Int]](grid_size*grid_size-hints.length)(Array.fill[Int](2)(0))
   var iter = 0
 
+
+
+
+
+
+  var map_possible = collection.mutable.Map[(Int, Int), List[Int]]()
+
+
+
+
+
+
+
+  println(sudoku_matrix.length)
   if (sudoku_matrix.length==0){
     // Regarde si la taille du sudoku est valide
     if (size != 4 && size != 9 && size != 16) {
@@ -254,6 +268,44 @@ class Sudoku(size: Int = 0, hints_matrix: Array[Array[Int]]=Array(), sudoku_matr
     false
   }
 
+
+
+
+
+
+
+  def get_next_value(x: Int, y: Int): Int = {
+    val tuple = (x, y)
+    if (map_possible.contains(tuple)) {
+      if (!(map_possible(tuple).isEmpty)) {
+        val init :+ last = map_possible(tuple)
+        // Pop value from indice list of possible values
+        map_possible.update(tuple, init)
+        return last
+      } else {
+        // If no value left, backtrack
+        return 0
+      }
+    } else {
+      map_possible += (tuple -> scala.util.Random.shuffle(List(1, 2, 3, 4, 5, 6, 7, 8, 9)))
+      //    println(map_possible(tuple))
+      val init :+ last = map_possible(tuple)
+      // Pop value from indice list of possible values
+      map_possible.update(tuple, init)
+      //    println(map_possible(tuple))
+      return last
+    }
+  }
+
+
+
+
+
+
+
+
+
+
   // Fonctions du solveur de sudoku avec choix des cases en commençant par la première case
   @tailrec
   final def backtrack(x: Int, y: Int): Array[Int] = {
@@ -262,11 +314,33 @@ class Sudoku(size: Int = 0, hints_matrix: Array[Array[Int]]=Array(), sudoku_matr
     else {sudoku_grid(x)(y)+=1; Array(x,y)}
   }
 
+//  @tailrec
+//  final def solve_sudoku(x: Int = x_first_indice, y: Int = y_first_indice): Unit = {
+//
+//    // Si la case du sudoku est vide (=0) on la met a 1
+//    if (sudoku_grid(x)(y)==0){ sudoku_grid(x)(y)=1; solve_sudoku(x, y)}
+//    // Si la derniere case du sudoku satisfait les contraintes
+//    else if (x==grid_size-1 && y==grid_size-1 && check_number(x, y)){ println("Sudoku solved!")}
+//    // Si la case satisfait les contraintes
+//    else if ( check_number(x, y)){val arr = get_next_indices(x,y); solve_sudoku(arr(0), arr(1))}
+//    // Si la case n'est pas a la valeur maximum (et la case ne satisfait pas les contraintes)
+//    else if (sudoku_grid(x)(y)<grid_size){sudoku_grid(x)(y)+=1; solve_sudoku(x, y)}
+//    // Erreur rebouclage case initiale
+//    else if (x==x_first_indice && y==y_first_indice){println("The Sudoku is wrong!!!")}
+//    // Il faut retourner en arriere
+//    else{sudoku_grid(x)(y)=0; val arr2 = get_previous_indices(x, y); val arr = backtrack(arr2(0),arr2(1)); solve_sudoku(arr(0), arr(1))}
+//  }
+
+
+
+
+
+
   @tailrec
   final def solve_sudoku(x: Int = x_first_indice, y: Int = y_first_indice): Unit = {
 
     // Si la case du sudoku est vide (=0) on la met a 1
-    if (sudoku_grid(x)(y)==0){ sudoku_grid(x)(y)=1; solve_sudoku(x, y)}
+    if (sudoku_grid(x)(y)==0){ sudoku_grid(x)(y)=get_next_value(x, y); solve_sudoku(x, y)}
     // Si la derniere case du sudoku satisfait les contraintes
     else if (x==grid_size-1 && y==grid_size-1 && check_number(x, y)){ println("Sudoku solved!")}
     // Si la case satisfait les contraintes
@@ -278,6 +352,14 @@ class Sudoku(size: Int = 0, hints_matrix: Array[Array[Int]]=Array(), sudoku_matr
     // Il faut retourner en arriere
     else{sudoku_grid(x)(y)=0; val arr2 = get_previous_indices(x, y); val arr = backtrack(arr2(0),arr2(1)); solve_sudoku(arr(0), arr(1))}
   }
+
+
+
+
+
+
+
+
 
   // Fonctions du solveur de sudoku avec choix des cases aléatoirement
   @tailrec
@@ -306,23 +388,18 @@ class Sudoku(size: Int = 0, hints_matrix: Array[Array[Int]]=Array(), sudoku_matr
 }
 
 // Sudoku 4*4 wrong
-var sudoku_solver_wrong = new Sudoku(4, Array(
-  Array(0,0,1),
-  Array(0,1,2),
-  Array(0,2,3),
-  Array(1,3,4),
-))
-sudoku_solver_wrong.show_grid()
-sudoku_solver_wrong.check_sudoku()
-sudoku_solver_wrong.solve_sudoku()
-sudoku_solver_wrong.check_sudoku()
-sudoku_solver_wrong.show_grid()
+//var sudoku_solver_wrong = new Sudoku(4, Array([0, 0, 1, 2]))
+//sudoku_solver_wrong.show_grid()
+//sudoku_solver_wrong.check_sudoku()
+//sudoku_solver_wrong.solve_sudoku()
+//sudoku_solver_wrong.check_sudoku()
+//sudoku_solver_wrong.show_grid()
 
 // Sudoku 4*4 wrong defines by the other way
 var sudoku_solver_wrong2 = new Sudoku(sudoku_matrix= Array(
   Array(1,2,3,0),
-  Array(0,0,0,4),
   Array(0,0,0,0),
+  Array(0,0,4,0),
   Array(0,0,0,0),
 ))
 sudoku_solver_wrong2.show_grid()
@@ -449,3 +526,4 @@ sudoku_solver3.solve_sudoku()
 sudoku_solver3.check_sudoku()
 sudoku_solver3.show_grid()
 **/
+
