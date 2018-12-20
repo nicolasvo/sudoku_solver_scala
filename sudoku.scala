@@ -273,14 +273,14 @@ class Sudoku(size: Int, hints_matrix: Array[Array[Int]]=Array(), sudoku_matrix: 
         return last
       } else {
         // If no value left, backtrack
-        println("... Backtracking " + tuple)
+        //println("... Backtracking " + tuple)
         map_possible = map_possible - tuple
 //        map_possible(tuple)
         return 0
       }
     } else {
       map_possible += (tuple -> scala.util.Random.shuffle(List.range(1, size+1)))
-      println(map_possible)
+      //println(map_possible)
 //      map_possible += (tuple -> scala.util.Random.shuffle(List(1, 2, 3, 4)))
       //    println(map_possible(tuple))
       val init :+ last = map_possible(tuple)
