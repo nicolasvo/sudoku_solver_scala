@@ -2,7 +2,7 @@ Sudoku
 ------
 
 Instructions
-------------
+============
 
 - Run with IntelliJ
 - Run with Docker
